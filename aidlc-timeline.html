@@ -1,0 +1,1354 @@
+<title>AI-DLC Flujo de Trabajo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root {
+  --bg:        #F5F7FB;
+  --surface:   #FFFFFF;
+  --surface-2: #EDF0F8;
+  --border:    #D8DDED;
+  --text:      #0D1427;
+  --muted:     #5A6A8C;
+  --faint:     #9AA5BF;
+
+  --ai:        #2A5EF0;
+  --ai-soft:   #EAF0FF;
+  --ai-mid:    #C2D2FC;
+
+  --hu:        #0C9468;
+  --hu-soft:   #E6F7F1;
+  --hu-mid:    #A8DECE;
+
+  --io:        #C97B10;
+  --io-soft:   #FEF3DC;
+  --io-mid:    #F5C97A;
+
+  --ph-1: #7C3AED;
+  --ph-2: #2A5EF0;
+  --ph-3: #0C9468;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:        #080E1C;
+    --surface:   #101828;
+    --surface-2: #172035;
+    --border:    #1E2D48;
+    --text:      #DCE8F8;
+    --muted:     #7A90BB;
+    --faint:     #3D5070;
+
+    --ai:        #5B87FA;
+    --ai-soft:   #0F1E3D;
+    --ai-mid:    #1A3060;
+
+    --hu:        #22C48C;
+    --hu-soft:   #0A2018;
+    --hu-mid:    #0F3828;
+
+    --io:        #F0A830;
+    --io-soft:   #251800;
+    --io-mid:    #3A2800;
+
+    --ph-1: #A78BFA;
+    --ph-2: #5B87FA;
+    --ph-3: #22C48C;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg:        #080E1C;
+  --surface:   #101828;
+  --surface-2: #172035;
+  --border:    #1E2D48;
+  --text:      #DCE8F8;
+  --muted:     #7A90BB;
+  --faint:     #3D5070;
+
+  --ai:        #5B87FA;
+  --ai-soft:   #0F1E3D;
+  --ai-mid:    #1A3060;
+
+  --hu:        #22C48C;
+  --hu-soft:   #0A2018;
+  --hu-mid:    #0F3828;
+
+  --io:        #F0A830;
+  --io-soft:   #251800;
+  --io-mid:    #3A2800;
+
+  --ph-1: #A78BFA;
+  --ph-2: #5B87FA;
+  --ph-3: #22C48C;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; }
+body {
+  font-family: 'Figtree', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  padding: 0 0 80px;
+}
+
+/* ── Header ── */
+.page-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 32px 48px 28px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.header-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.header-title {
+  font-family: 'Figtree', sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1.2;
+  color: var(--text);
+  text-wrap: balance;
+}
+
+.legend {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding-top: 4px;
+}
+
+.leg {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.leg-dot { width: 10px; height: 10px; border-radius: 2px; }
+.leg-dot.ai  { background: var(--ai); }
+.leg-dot.hu  { background: var(--hu); }
+.leg-dot.io  { background: var(--io); }
+
+/* ── Tab bar ── */
+.tab-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 48px;
+  display: flex;
+}
+
+.tab-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 14px 20px 12px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--ai); border-bottom-color: var(--ai); }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── Content wrap ── */
+.wrap { max-width: 960px; margin: 0 auto; padding: 0 32px; }
+
+/* ── Phase header ── */
+.phase { margin-top: 40px; }
+
+.phase-header { display: flex; align-items: center; gap: 0; margin-bottom: 4px; }
+
+.phase-bar { width: 4px; height: 36px; border-radius: 2px; margin-right: 14px; flex-shrink: 0; }
+
+.phase-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.phase-title { font-family: 'Figtree', sans-serif; font-weight: 700; font-size: 18px; color: var(--text); }
+
+.phase-desc {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 6px 0 20px 18px;
+  padding-left: 14px;
+  border-left: 1px solid var(--border);
+  max-width: 600px;
+  line-height: 1.6;
+}
+
+/* ── Cycle strip ── */
+.cycle-strip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+}
+
+.cs-step {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 3px;
+  white-space: nowrap;
+  color: var(--muted);
+  background: transparent;
+}
+.cs-step.ai-step  { background: var(--ai-soft); color: var(--ai); }
+.cs-step.hu-step  { background: var(--hu-soft); color: var(--hu); }
+.cs-step.active-step { background: var(--ai); color: #fff; font-weight: 700; }
+.cs-step.active-step.hu { background: var(--hu); }
+
+.cs-arrow { color: var(--faint); font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 0 4px; flex-shrink: 0; }
+
+/* ── Step card ── */
+.step-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.step-num { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; color: var(--faint); min-width: 20px; }
+.step-name { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: var(--text); flex: 1; }
+
+.step-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 3px; }
+.step-tag.ai { background: var(--ai-soft); color: var(--ai); }
+.step-tag.hu { background: var(--hu-soft); color: var(--hu); }
+.step-tag.both { background: linear-gradient(90deg, var(--ai-soft) 50%, var(--hu-soft) 50%); color: var(--muted); }
+
+/* ── Two-lane body ── */
+.step-body { display: grid; grid-template-columns: 1fr 2px 1fr; }
+.lane { padding: 16px 18px; }
+.lane-divider { background: var(--border); }
+
+.lane-role { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+.lane-role.ai { color: var(--ai); }
+.lane-role.hu { color: var(--hu); }
+
+.lane-action { font-size: 13.5px; font-weight: 500; color: var(--text); margin-bottom: 8px; line-height: 1.5; }
+.lane-detail { font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+
+/* ── IO chips ── */
+.io-row {
+  padding: 10px 18px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  background: var(--io-soft);
+}
+
+.io-chip { display: inline-flex; align-items: center; gap: 5px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 500; color: var(--io); }
+.io-chip-label { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--io); opacity: 0.7; margin-right: 2px; }
+
+.note { background: var(--hu-soft); border: 1px solid var(--hu-mid); border-radius: 6px; padding: 12px 16px; font-size: 13px; color: var(--text); margin-bottom: 14px; display: flex; gap: 10px; }
+.note strong { color: var(--hu); }
+.note-icon { color: var(--hu); font-size: 14px; margin-top: 1px; flex-shrink: 0; }
+
+.sub-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 20px 0 10px; }
+
+/* ── Ops 3-col ── */
+.ops-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.ops-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.ops-card-head { padding: 10px 14px; background: var(--surface-2); border-bottom: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--text); }
+.ops-card-body { padding: 14px; }
+.ops-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 10px; }
+.ops-row:last-child { margin-bottom: 0; }
+.ops-role { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 600; padding: 2px 6px; border-radius: 2px; white-space: nowrap; min-width: 36px; text-align: center; }
+.ops-role.ai { background: var(--ai-soft); color: var(--ai); }
+.ops-role.hu { background: var(--hu-soft); color: var(--hu); }
+.ops-text { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+.phase-connector { display: flex; justify-content: center; padding: 6px 0; color: var(--faint); font-size: 18px; }
+
+/* ── Theme btn ── */
+.theme-btn {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+  padding: 8px 14px; font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--muted); cursor: pointer; z-index: 100; transition: background 0.15s;
+}
+.theme-btn:hover { background: var(--surface-2); }
+
+
+/* ═══════════════════════════════
+   EJEMPLO REAL — styles
+═══════════════════════════════ */
+
+.scenario-banner {
+  background: linear-gradient(135deg, var(--ai-soft) 0%, var(--hu-soft) 100%);
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 24px 28px; margin-top: 32px; margin-bottom: 32px;
+}
+.scenario-kicker { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ai); margin-bottom: 6px; }
+.scenario-title { font-family: 'Figtree', sans-serif; font-weight: 700; font-size: 20px; color: var(--text); margin-bottom: 10px; }
+.scenario-desc { font-size: 13.5px; color: var(--muted); line-height: 1.65; max-width: 700px; }
+.scenario-meta { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+.scenario-chip { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 500; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 4px 10px; }
+
+.ex-step { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
+.ex-step-header { display: flex; align-items: center; gap: 10px; padding: 12px 18px; background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.ex-step-badge { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 3px; }
+.ex-step-badge.ai { background: var(--ai-soft); color: var(--ai); }
+.ex-step-badge.hu { background: var(--hu-soft); color: var(--hu); }
+.ex-step-title { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: var(--text); flex: 1; }
+.ex-step-body { padding: 18px 20px; }
+
+.ex-artifact { background: var(--ai-soft); border: 1px solid var(--ai-mid); border-radius: 6px; margin: 12px 0; overflow: hidden; }
+.ex-artifact-head { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--ai-mid); font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ai); }
+.ex-artifact-body { padding: 14px 16px; font-size: 13px; color: var(--text); line-height: 1.65; }
+.ex-artifact-body code { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; background: var(--surface); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; color: var(--ai); }
+.ex-artifact-body pre { font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.7; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 12px 14px; margin-top: 10px; overflow-x: auto; color: var(--text); }
+
+.ex-human { background: var(--hu-soft); border: 1px solid var(--hu-mid); border-radius: 6px; padding: 12px 16px; margin: 10px 0; font-size: 13px; color: var(--text); line-height: 1.6; }
+.ex-human-role { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--hu); margin-bottom: 6px; }
+
+.ex-dialog { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin: 12px 0; }
+.ex-dialog-row { display: grid; grid-template-columns: auto 1fr; border-bottom: 1px solid var(--border); }
+.ex-dialog-row:last-child { border-bottom: none; }
+.ex-dialog-who { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; padding: 12px 14px; min-width: 64px; text-align: center; display: flex; align-items: flex-start; justify-content: center; padding-top: 14px; }
+.ex-dialog-who.ai { background: var(--ai-soft); color: var(--ai); }
+.ex-dialog-who.hu { background: var(--hu-soft); color: var(--hu); }
+.ex-dialog-text { padding: 12px 16px; font-size: 12.5px; color: var(--text); line-height: 1.6; background: var(--surface); }
+
+.ex-decision { background: var(--hu-soft); border: 2px solid var(--hu); border-radius: 8px; padding: 14px 18px; margin: 14px 0; font-size: 13px; color: var(--text); line-height: 1.6; }
+.ex-decision-label { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--hu); margin-bottom: 6px; }
+
+.ex-output-row { display: flex; gap: 8px; flex-wrap: wrap; background: var(--io-soft); border-top: 1px solid var(--io-mid); padding: 10px 18px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--io); }
+.ex-output-label { font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.7; margin-right: 4px; }
+
+.ex-section-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 28px 0 10px; display: flex; align-items: center; gap: 10px; }
+.ex-section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.bolt-tag { display: inline-flex; align-items: center; gap: 5px; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; background: var(--ai-soft); color: var(--ai); border: 1px solid var(--ai-mid); border-radius: 4px; padding: 3px 10px; margin-left: 8px; }
+
+.story-list { list-style: none; margin: 0; padding: 0; }
+.story-list li { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12.5px; color: var(--text); line-height: 1.55; display: flex; gap: 10px; align-items: flex-start; }
+.story-list li:last-child { border-bottom: none; }
+.story-id { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; color: var(--ai); background: var(--ai-soft); border-radius: 3px; padding: 2px 6px; white-space: nowrap; flex-shrink: 0; margin-top: 1px; }
+
+.uow-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 12px 0; }
+.uow-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; }
+.uow-id { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: var(--ai); margin-bottom: 4px; }
+.uow-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.uow-stories { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
+.uow-note { font-size: 11.5px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+
+.ex-ops-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+.ex-ops-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.ex-ops-head { padding: 10px 14px; background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.ex-ops-head-title { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 700; color: var(--text); }
+.ex-ops-head-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.ex-ops-body { padding: 14px; }
+.ex-ops-entry { display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start; }
+.ex-ops-entry:last-child { margin-bottom: 0; }
+.ex-ops-who { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 2px; white-space: nowrap; min-width: 30px; text-align: center; flex-shrink: 0; }
+.ex-ops-who.ai { background: var(--ai-soft); color: var(--ai); }
+.ex-ops-who.hu { background: var(--hu-soft); color: var(--hu); }
+.ex-ops-txt { font-size: 11.5px; color: var(--muted); line-height: 1.5; }
+
+.incident-alert { background: #FFF5F5; border: 1px solid #FCA5A5; border-radius: 6px; padding: 12px 16px; margin: 12px 0; font-size: 12.5px; color: #7F1D1D; line-height: 1.6; }
+.incident-label { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #DC2626; margin-bottom: 6px; }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .page-header { padding: 24px 20px; }
+  .tab-bar { padding: 0 16px; }
+  .wrap { padding: 0 16px; }
+  .step-body { grid-template-columns: 1fr; }
+  .lane-divider { display: none; }
+  .ops-grid, .ex-ops-grid, .uow-grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<!-- HEADER -->
+<div class="page-header">
+  <div class="header-left">
+    <div class="header-label">AI-DLC · Flujo de Trabajo Completo</div>
+    <div class="header-title">Quién hace qué, cuándo y con qué información</div>
+  </div>
+  <div class="legend">
+    <div class="leg"><div class="leg-dot ai"></div>IA ejecuta</div>
+    <div class="leg"><div class="leg-dot hu"></div>Humano decide</div>
+    <div class="leg"><div class="leg-dot io"></div>Input / Output</div>
+  </div>
+</div>
+
+<!-- TAB BAR -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('flow', this)">Flujo General</button>
+  <button class="tab-btn" onclick="switchTab('example', this)">▶ Ejemplo Real</button>
+</div>
+
+
+<!-- ════════════════════════════════════
+     TAB 1: FLUJO GENERAL
+════════════════════════════════════ -->
+<div id="tab-flow" class="tab-panel active">
+<div class="wrap">
+
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-bar" style="background:var(--ph-1)"></div>
+      <div>
+        <div class="phase-label" style="color:var(--ph-1)">Fase 1</div>
+        <div class="phase-title">Inception</div>
+      </div>
+    </div>
+    <div class="phase-desc">La IA convierte un objetivo de negocio en unidades de trabajo independientes y construibles. Sale en horas, no días. Ritual: <strong>Mob Elaboration</strong> — todo el equipo en la misma sesión.</div>
+
+    <div class="step-card">
+      <div class="step-header">
+        <span class="step-num">—</span>
+        <span class="step-name">Mob Elaboration</span>
+        <span class="step-tag both">IA + Humano</span>
+      </div>
+      <div class="step-body">
+        <div class="lane">
+          <div class="lane-role ai">IA 🤖</div>
+          <div class="lane-action">Propone estructura de Intent, User Stories y Units of Work</div>
+          <div class="lane-detail">Lee el objetivo de negocio y genera una descomposición jerárquica: por qué → qué → cómo. Propone agrupaciones lógicas de stories en Units of Work auto-contenidas.</div>
+        </div>
+        <div class="lane-divider"></div>
+        <div class="lane">
+          <div class="lane-role hu">Humano 👤</div>
+          <div class="lane-action">Valida, corrige y aprueba en tiempo real</div>
+          <div class="lane-detail">Producto revisa que las stories entreguen valor real. Dev valida que los Units sean técnicamente independientes. QA confirma que los criterios de aceptación sean testeables. Nadie se va sin aprobación.</div>
+        </div>
+      </div>
+      <div class="io-row">
+        <div class="io-chip"><span class="io-chip-label">INPUT →</span> Objetivo de negocio en lenguaje natural · Contexto del dominio · Backlog existente (si hay)</div>
+        <div class="io-chip" style="margin-left:auto"><span class="io-chip-label">OUTPUT →</span> Intent doc · User Stories con criterios · Units of Work priorizados</div>
+      </div>
+    </div>
+
+    <div class="note">
+      <div class="note-icon">✓</div>
+      <div><strong>Criterio de salida:</strong> el equipo puede empezar a construir <em>inmediatamente</em> al terminar la sesión. Si quedan preguntas sin respuesta, Inception no terminó.</div>
+    </div>
+  </div>
+
+  <div class="phase-connector">↓</div>
+
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-bar" style="background:var(--ph-2)"></div>
+      <div>
+        <div class="phase-label" style="color:var(--ph-2)">Fase 2</div>
+        <div class="phase-title">Construction</div>
+      </div>
+    </div>
+    <div class="phase-desc">Por cada Unit of Work se ejecuta un <strong>Bolt</strong> — ciclo de alta velocidad medido en horas o días. Ritual: <strong>Mob Construction</strong> — pantalla compartida, IA propone, equipo aprueba en cada puerta.</div>
+
+    <div class="cycle-strip">
+      <span class="cs-step ai-step">Task</span><span class="cs-arrow">→</span>
+      <span class="cs-step ai-step">Plan</span><span class="cs-arrow">→</span>
+      <span class="cs-step hu-step">Clarify</span><span class="cs-arrow">→</span>
+      <span class="cs-step ai-step">Refine</span><span class="cs-arrow">→</span>
+      <span class="cs-step hu-step">Approve ✓</span><span class="cs-arrow">→</span>
+      <span class="cs-step ai-step">Execute</span><span class="cs-arrow">→</span>
+      <span class="cs-step hu-step">Verify ✓</span>
+    </div>
+
+    <div class="step-card">
+      <div class="step-header"><span class="step-num">01</span><span class="step-name">Task — Descomposición inicial</span><span class="step-tag ai">IA</span></div>
+      <div class="step-body">
+        <div class="lane">
+          <div class="lane-role ai">IA 🤖</div>
+          <div class="lane-action">Lee el Unit of Work y lo descompone en tareas técnicas concretas</div>
+          <div class="lane-detail">Analiza el Unit of Work, identifica dependencias internas y propone el orden de ejecución. Determina automáticamente qué etapas de diseño son necesarias.</div>
+        </div>
+        <div class="lane-divider"></div>
+        <div class="lane">
+          <div class="lane-role hu">Humano 👤</div>
+          <div class="lane-action">Asigna el Unit of Work al agente</div>
+          <div class="lane-detail" style="color:var(--faint); font-style:italic;">Acción mínima. El humano inicia el ciclo proporcionando el Unit of Work aprobado en Inception.</div>
+        </div>
+      </div>
+      <div class="io-row">
+        <div class="io-chip"><span class="io-chip-label">INPUT →</span> Unit of Work doc · User Stories · Criterios de aceptación · System prompts · ADRs previos</div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-header"><span class="step-num">02</span><span class="step-name">Plan — Diseño y plan de ejecución</span><span class="step-tag ai">IA</span></div>
+      <div class="step-body">
+        <div class="lane">
+          <div class="lane-role ai">IA 🤖</div>
+          <div class="lane-action">Genera el plan completo en 4 capas</div>
+          <div class="lane-detail">
+            <strong style="color:var(--text)">① Functional Design</strong> — modela entidades, reglas y workflows.<br><br>
+            <strong style="color:var(--text)">② NFR Design</strong> — performance, escalabilidad, seguridad.<br><br>
+            <strong style="color:var(--text)">③ Infrastructure Design</strong> — mapea a servicios cloud. Redacta ADRs.<br><br>
+            <strong style="color:var(--text)">④ Code plan</strong> — estructura de archivos e interfaces.
+          </div>
+        </div>
+        <div class="lane-divider"></div>
+        <div class="lane">
+          <div class="lane-role hu">Humano 👤</div>
+          <div class="lane-action">Revisa el plan mientras se genera</div>
+          <div class="lane-detail">En Mob Construction el equipo ve el plan formarse en tiempo real. Puede identificar problemas antes de que se completen todas las capas.</div>
+        </div>
+      </div>
+      <div class="io-row">
+        <div class="io-chip"><span class="io-chip-label">INPUT →</span> Task list · Contexto · Reglas de arquitectura · Stack tecnológico</div>
+        <div class="io-chip" style="margin-left:auto"><span class="io-chip-label">OUTPUT →</span> Plan en capas listo para revisión</div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-header"><span class="step-num">03</span><span class="step-name">Clarify — Resolución de ambigüedades</span><span class="step-tag hu">Humano</span></div>
+      <div class="step-body">
+        <div class="lane">
+          <div class="lane-role ai">IA 🤖</div>
+          <div class="lane-action">Formula preguntas específicas sobre lo que no está claro</div>
+          <div class="lane-detail">No sigue adelante con suposiciones. Si hay ambigüedad en un criterio, un límite de negocio o una decisión de diseño, la IA se detiene y pregunta con precisión.</div>
+        </div>
+        <div class="lane-divider"></div>
+        <div class="lane">
+          <div class="lane-role hu">Humano 👤</div>
+          <div class="lane-action">Responde con precisión — sin vaguedad</div>
+          <div class="lane-detail">La intervención humana más crítica fuera del Approve. Una respuesta vaga produce un plan malo. Producto, QA o el arquitecto responden según su área.</div>
+        </div>
+      </div>
+      <div class="io-row">
+        <div class="io-chip"><span class="io-chip-label">INPUT HUMANO →</span> Respuestas precisas a preguntas concretas</div>
+        <div class="io-chip" style="margin-left:auto"><span class="io-chip-label">OUTPUT →</span> Plan enriquecido con contexto resuelto</div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-header"><span class="step-num">04</span><span class="step-name">Refine — Ajuste del plan</span><span class="step-tag ai">IA</span></div>
+      <div class="step-body">
+        <div class="lane">
+          <div class="lane-role ai">IA 🤖</div>
+          <div class="lane-action">Incorpora las respuestas y actualiza el plan</div>
+          <div class="lane-detail">Reescribe las partes afectadas por las clarificaciones. Puede volver a Clarify si surgen nuevas preguntas en el ajuste.</div>
+        </div>
+        <div class="lane-divider"></div>
+        <div class="lane">
+          <div class="lane-role hu">Humano 👤</div>
+          <div class="lane-action">Revisa el plan ajustado antes de aprobar</div>
+          <div class="lane-detail">¿El cambio tiene sentido? ¿El ajuste rompió algo en otra parte del plan? Última oportunidad antes del Approve.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-card" style="border-color: var(--hu-mid);">
+      <div class="step-header" style="background: var(--hu-soft); border-bottom-color: var(--hu-mid);">
+        <span class="step-num">05</span>
+        <span class="step-name">Approve ✓ — La puerta más importante</span>
+        <span class="step-tag hu">Humano</span>
+      </div>
+      <div class="step-body">
+        <div class="lane">
+          <div class="lane-role ai">IA 🤖</div>
+          <div class="lane-action">Espera. No ejecuta nada.</div>
+          <div class="lane-detail" style="color:var(--faint); font-style:italic;">Principio central de AI-DLC: sin aprobación explícita, la IA no genera una sola línea de código.</div>
+        </div>
+        <div class="lane-divider"></div>
+        <div class="lane">
+          <div class="lane-role hu">Humano 👤</div>
+          <div class="lane-action">APRUEBA el plan — o regresa a Clarify</div>
+          <div class="lane-detail">El decisor con autoridad da el go. Si el plan tiene problemas, vuelve a Clarify (paso 03). La aprobación es explícita y queda registrada.</div>
+        </div>
+      </div>
+      <div class="io-row" style="background: var(--hu-soft); border-top-color: var(--hu-mid);">
+        <div class="io-chip" style="color:var(--hu)"><span class="io-chip-label" style="color:var(--hu)">GATE →</span> Sin este paso, la ejecución no comienza.</div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-header"><span class="step-num">06</span><span class="step-name">Execute — Generación de código</span><span class="step-tag ai">IA</span></div>
+      <div class="step-body">
+        <div class="lane">
+          <div class="lane-role ai">IA 🤖</div>
+          <div class="lane-action">Genera código con trazabilidad completa a los requisitos</div>
+          <div class="lane-detail">Cada archivo puede rastrearse a una User Story y criterio de aceptación. La IA sigue el plan aprobado. Si necesita desviarse, se detiene y avisa.</div>
+        </div>
+        <div class="lane-divider"></div>
+        <div class="lane">
+          <div class="lane-role hu">Humano 👤</div>
+          <div class="lane-action">Monitorea — puede intervenir si algo sale mal</div>
+          <div class="lane-detail">No es supervisión pasiva. Si la IA va en una dirección inesperada, el humano interviene antes de que termine. Más barato corregir a mitad que al final.</div>
+        </div>
+      </div>
+      <div class="io-row">
+        <div class="io-chip"><span class="io-chip-label">INPUT →</span> Plan aprobado · System prompts · ADRs · Código base existente</div>
+        <div class="io-chip" style="margin-left:auto"><span class="io-chip-label">OUTPUT →</span> Código con trazabilidad · Tests · Documentación</div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-header"><span class="step-num">07</span><span class="step-name">Verify ✓ — Validación y decisión de completitud</span><span class="step-tag hu">Humano</span></div>
+      <div class="step-body">
+        <div class="lane">
+          <div class="lane-role ai">IA 🤖</div>
+          <div class="lane-action">Ejecuta la pirámide de tests y genera el Summary Report</div>
+          <div class="lane-detail">Unit → Integration → E2E tests. El Summary Report documenta qué funcionó, qué falló, qué trade-offs se tomaron. Es el input para Operations.</div>
+        </div>
+        <div class="lane-divider"></div>
+        <div class="lane">
+          <div class="lane-role hu">Humano 👤</div>
+          <div class="lane-action">Valida calidad + decide: iterar o completar</div>
+          <div class="lane-detail">Mob Testing en pantalla compartida. El humano hace la llamada final: ¿el Unit of Work está completo? La IA tiende a seguir refinando indefinidamente — el humano marca el "done".</div>
+        </div>
+      </div>
+      <div class="io-row">
+        <div class="io-chip"><span class="io-chip-label">OUTPUT →</span> Summary Report (go/no-go para Ops) · Código verificado · ADRs actualizados</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase-connector">↓</div>
+
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-bar" style="background:var(--ph-3)"></div>
+      <div>
+        <div class="phase-label" style="color:var(--ph-3)">Fase 3</div>
+        <div class="phase-title">Operations</div>
+      </div>
+    </div>
+    <div class="phase-desc">La misma lógica de AI-DLC se aplica sin ruptura a deployment, observabilidad e incident response. Si un incidente requiere un fix de código, el ciclo regresa a Construction.</div>
+
+    <div class="ops-grid">
+      <div class="ops-card">
+        <div class="ops-card-head">Deployment</div>
+        <div class="ops-card-body">
+          <div class="ops-row"><div class="ops-role ai">IA</div><div class="ops-text">Empaqueta Units of Work en componentes desplegables. Propone el plan de rollout.</div></div>
+          <div class="ops-row"><div class="ops-role hu">HU</div><div class="ops-text"><strong>Aprueba el plan antes de cualquier rollout.</strong> Sin aprobación, no hay ejecución.</div></div>
+          <div class="ops-row"><div class="ops-role ai">IA</div><div class="ops-text">Ejecuta el deployment al entorno target.</div></div>
+        </div>
+      </div>
+      <div class="ops-card">
+        <div class="ops-card-head">Observabilidad</div>
+        <div class="ops-card-body">
+          <div class="ops-row"><div class="ops-role ai">IA</div><div class="ops-text">Propone vendor de monitoreo, métricas, dashboards y reglas de alertas.</div></div>
+          <div class="ops-row"><div class="ops-role hu">HU</div><div class="ops-text">Valida alineación con compliance y aprueba la configuración.</div></div>
+          <div class="ops-row"><div class="ops-role ai">IA</div><div class="ops-text">Construye y despliega el sistema de observabilidad.</div></div>
+        </div>
+      </div>
+      <div class="ops-card">
+        <div class="ops-card-head">Incident Response</div>
+        <div class="ops-card-body">
+          <div class="ops-row"><div class="ops-role ai">IA</div><div class="ops-text">Analiza logs y telemetría. Identifica patrones. Recomienda acciones con razonamiento.</div></div>
+          <div class="ops-row"><div class="ops-role hu">HU</div><div class="ops-text"><strong>Toma la decisión crítica.</strong> La IA recomienda — el humano decide qué ejecutar y cuándo.</div></div>
+          <div class="ops-row"><div class="ops-role ai">IA</div><div class="ops-text">Ejecuta la acción aprobada. Si se requiere fix de código → vuelve a Construction.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note" style="margin-top:16px; background: var(--ai-soft); border-color: var(--ai-mid);">
+      <div class="note-icon" style="color:var(--ai)">↺</div>
+      <div style="font-size:13px;"><strong style="color:var(--ai)">El ciclo es continuo:</strong> Inception → Construction → Operations → (incidente → fix en Construction) → Operations. Siempre el mismo loop: <em>IA propone · humano aprueba · IA ejecuta</em>.</div>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+</div><!-- /tab-flow -->
+
+
+<!-- ════════════════════════════════════
+     TAB 2: EJEMPLO REAL
+════════════════════════════════════ -->
+<div id="tab-example" class="tab-panel">
+<div class="wrap">
+
+  <!-- SCENARIO BANNER -->
+  <div class="scenario-banner">
+    <div class="scenario-kicker">Caso práctico · Ejercicio end-to-end</div>
+    <div class="scenario-title">RecipeNow — App de Recetas por Suscripción (iOS &amp; Android)</div>
+    <div class="scenario-desc">Una startup quiere lanzar una app de contenido de recetas en múltiples categorías: bebidas, parrilla, desayunos, ensaladas y postres. El modelo de negocio es freemium: 2 recetas gratuitas, luego paywall de suscripción. Los 3 componentes principales son un <strong>Feed de recetas</strong>, una carpeta de <strong>Guardados</strong> y un <strong>Buscador</strong>. Seguimos el ciclo AI-DLC completo desde la idea hasta el primer incidente en producción.</div>
+    <div class="scenario-meta">
+      <span class="scenario-chip">📱 iOS + Android (React Native)</span>
+      <span class="scenario-chip">👥 PM · CTO · iOS Dev · Android Dev · QA</span>
+      <span class="scenario-chip">💰 Freemium: 2 recetas gratis → suscripción</span>
+      <span class="scenario-chip">⏱ Inception: 3h · Bolt: 1–2 días c/u</span>
+    </div>
+  </div>
+
+
+  <!-- ══ INCEPTION ══ -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-bar" style="background:var(--ph-1)"></div>
+      <div>
+        <div class="phase-label" style="color:var(--ph-1)">Fase 1 · Inception</div>
+        <div class="phase-title">Mob Elaboration — 3 horas, equipo completo</div>
+      </div>
+    </div>
+    <div class="phase-desc">La PM abre la sesión con el brief del producto. La IA lo convierte en estructura construible en tiempo real mientras el equipo valida cada pieza.</div>
+  </div>
+
+  <div class="ex-section-label">Input que recibe la IA</div>
+  <div class="ex-artifact">
+    <div class="ex-artifact-head">📄 Brief de la PM (texto libre)</div>
+    <div class="ex-artifact-body">
+      <em>"Queremos una app de recetas para iOS y Android. El contenido está organizado en categorías: bebidas, parrilla, desayunos, ensaladas y postres. El negocio es por suscripción — los usuarios pueden ver 2 recetas sin pagar, después de eso les aparece el paywall. La app tiene tres secciones: un feed principal donde puedes explorar las recetas, una carpeta donde guardas las que te gustaron y un buscador. El contenido lo cargamos nosotros en un CMS."</em>
+    </div>
+  </div>
+
+  <div class="ex-section-label">IA genera: Intent Document</div>
+  <div class="ex-artifact">
+    <div class="ex-artifact-head">🤖 IA propone — Intent Document</div>
+    <div class="ex-artifact-body">
+      <strong>Objetivo de negocio:</strong> Crear una app de contenido de recetas que convierta usuarios gratuitos en suscriptores mediante una experiencia de descubrimiento de alto valor, limitando el acceso a 2 recetas sin suscripción.<br><br>
+      <strong>Valor para el negocio:</strong> Monetización recurrente mediante suscripción mensual/anual. El contenido editorial (categorías curadas, calidad visual) es la ventaja competitiva.<br><br>
+      <strong>Plataformas:</strong> iOS y Android — experiencia nativa en ambas a través de un stack compartido (React Native).<br><br>
+      <strong>Modelo de acceso:</strong> Freemium con hard paywall. Las 2 recetas gratuitas son la muestra de valor antes de la conversión.<br><br>
+      <strong>Fuera de alcance v1:</strong> Comentarios, ratings de usuarios, recetas generadas por usuarios, compartir en redes sociales.
+    </div>
+  </div>
+
+  <div class="ex-human">
+    <div class="ex-human-role">👤 PM</div>
+    "Correcto. Una aclaración: las 2 recetas gratuitas no son las mismas para todos — son las 2 primeras que el usuario abre, de cualquier categoría. No podemos mostrar recetas 'bloqueadas con candado' antes de que llegue al límite — eso se siente agresivo."
+  </div>
+  <div class="ex-human">
+    <div class="ex-human-role">👤 CTO</div>
+    "El CMS que usamos es Contentful. Tenemos un equipo editorial que sube las recetas ahí. La app no tiene backend propio por ahora — consume la API de Contentful directamente. Eso cambia bastante la arquitectura."
+  </div>
+  <div class="ex-artifact">
+    <div class="ex-artifact-head">🤖 IA actualiza el Intent</div>
+    <div class="ex-artifact-body">
+      Incorporado: el paywall no debe ser visible hasta que el usuario llegue a la receta 3 — sin candados en el feed. El contador de recetas gratuitas es por usuario (device ID si es anónimo, cuenta si está registrado).<br><br>
+      Incorporado: arquitectura cliente-CMS directo (Contentful API). No hay backend propio en v1 — implica que toda la lógica de paywall y preferencias vive en el cliente + un servicio de autenticación/suscripción (RevenueCat para in-app purchases).
+    </div>
+  </div>
+
+  <div class="ex-section-label">IA genera: User Stories</div>
+  <div class="ex-artifact">
+    <div class="ex-artifact-head">🤖 IA propone — User Stories</div>
+    <div class="ex-artifact-body">
+      <ul class="story-list">
+        <li><span class="story-id">US-01</span><div><strong>Como usuario,</strong> quiero explorar un feed de recetas organizadas por categoría (bebidas, parrilla, desayunos, ensaladas, postres) para descubrir contenido relevante a mi interés.<br><small style="color:var(--muted)">Criterio: el home muestra secciones horizontales por categoría · cada receta muestra foto, nombre, tiempo de preparación y nivel de dificultad · scroll infinito dentro de cada categoría</small></div></li>
+        <li><span class="story-id">US-02</span><div><strong>Como usuario,</strong> quiero abrir una receta y ver todos sus pasos, ingredientes y foto, para poder cocinarla.<br><small style="color:var(--muted)">Criterio: disponible sin cuenta para las primeras 2 recetas abiertas · contenido cargado desde Contentful · la pantalla funciona offline si la receta fue abierta antes</small></div></li>
+        <li><span class="story-id">US-03</span><div><strong>Como usuario no suscrito,</strong> cuando intento abrir mi 3ª receta quiero ver una pantalla de suscripción clara que explique el beneficio y me permita comprar, para decidir si vale la pena.<br><small style="color:var(--muted)">Criterio: el paywall aparece solo al intentar abrir la 3ª receta, nunca antes · muestra opciones mensual y anual · integrado con App Store y Google Play Billing vía RevenueCat</small></div></li>
+        <li><span class="story-id">US-04</span><div><strong>Como suscriptor,</strong> quiero guardar recetas en una carpeta personal para acceder a ellas rápido sin buscarlas de nuevo.<br><small style="color:var(--muted)">Criterio: botón de guardar en la receta y en el feed · las recetas guardadas persisten entre sesiones · se sincronizan en todos los dispositivos del mismo usuario</small></div></li>
+        <li><span class="story-id">US-05</span><div><strong>Como usuario,</strong> quiero buscar recetas por nombre, ingrediente o categoría para encontrar lo que necesito sin scrollear.<br><small style="color:var(--muted)">Criterio: resultados en &lt;1 seg · búsqueda funciona offline sobre las recetas ya cargadas · las recetas bloqueadas para no suscritos aparecen en resultados pero muestran el paywall al abrirlas</small></div></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="ex-human">
+    <div class="ex-human-role">👤 QA</div>
+    "US-04 dice 'se sincronizan en todos los dispositivos' — eso requiere backend. Si no hay backend propio, ¿cómo lo hacemos? ¿Firebase?"
+  </div>
+  <div class="ex-artifact">
+    <div class="ex-artifact-head">🤖 IA registra la decisión pendiente</div>
+    <div class="ex-artifact-body">Pregunta válida — la sincronización cross-device requiere un store externo. Opciones: <strong>(a)</strong> Firebase Firestore — sin backend propio, reglas de seguridad client-side; <strong>(b)</strong> solo local (AsyncStorage) — no sincroniza, pero v1 simple. <em>Decisión de arquitectura para Clarify en UoW-03 (Saved Folder).</em> Por ahora el criterio de US-04 dice "persiste entre sesiones" — la sincronización cross-device se marca como stretch goal de v1.
+    </div>
+  </div>
+
+  <div class="ex-section-label">IA genera: Units of Work</div>
+  <div class="ex-artifact">
+    <div class="ex-artifact-head">🤖 IA propone — Agrupación en Units of Work</div>
+    <div class="ex-artifact-body">
+      <div class="uow-grid">
+        <div class="uow-card">
+          <div class="uow-id">UoW-01</div>
+          <div class="uow-name">Feed de Recetas + Detalle</div>
+          <div class="uow-stories">US-01 · US-02</div>
+          <div class="uow-note">El núcleo del producto. Define la arquitectura de navegación, el modelo de datos de Recipe y la integración con Contentful. Todo lo demás depende de esto.</div>
+        </div>
+        <div class="uow-card">
+          <div class="uow-id">UoW-02</div>
+          <div class="uow-name">Paywall + Suscripción</div>
+          <div class="uow-stories">US-03</div>
+          <div class="uow-note">La capa de monetización. Contador de recetas vistas, pantalla de paywall, integración RevenueCat. Depende de UoW-01 para el hook en el detalle de receta.</div>
+        </div>
+        <div class="uow-card">
+          <div class="uow-id">UoW-03</div>
+          <div class="uow-name">Carpeta de Guardados</div>
+          <div class="uow-stories">US-04</div>
+          <div class="uow-note">Persistencia local con AsyncStorage. Sincronización cross-device evaluada en Clarify. Solo disponible para suscriptores.</div>
+        </div>
+        <div class="uow-card">
+          <div class="uow-id">UoW-04</div>
+          <div class="uow-name">Buscador</div>
+          <div class="uow-stories">US-05</div>
+          <div class="uow-note">Búsqueda sobre el catálogo de Contentful + índice local. Respeta el estado de suscripción en los resultados.</div>
+        </div>
+      </div>
+      <div style="font-size:12px; color:var(--muted); margin-top:12px;"><strong style="color:var(--text)">Orden de construcción:</strong> UoW-01 primero (todos dependen de él). UoW-02 en paralelo con UoW-03 una vez que UoW-01 está en staging. UoW-04 al final.</div>
+    </div>
+  </div>
+
+  <div class="ex-human">
+    <div class="ex-human-role">👤 CTO — aprobación del backlog</div>
+    "El orden tiene sentido. Empezamos con UoW-01 mañana. Una cosa: quiero que el diseño del modelo de Recipe en Contentful lo definamos en la sesión de hoy antes de terminar, porque eso define el contrato de datos de todo lo demás."
+  </div>
+  <div class="ex-artifact">
+    <div class="ex-artifact-head">🤖 IA propone — Schema de Recipe en Contentful</div>
+    <div class="ex-artifact-body">
+      <pre>Recipe (Content Type)
+  title          → Short text
+  slug           → Short text (único, URL-friendly)
+  category       → Reference → Category
+  coverImage     → Media (1:1, mín 800px)
+  prepTime       → Integer (minutos)
+  difficulty     → Short text: "fácil" | "medio" | "difícil"
+  description    → Short text (para cards del feed)
+  ingredients    → Long text (lista)
+  steps          → Rich text (pasos con imágenes opcionales)
+  isPremium      → Boolean (siempre true en v1 después de las 2 gratuitas)
+
+Category (Content Type)
+  name           → Short text
+  slug           → Short text
+  icon           → Media</pre>
+    </div>
+  </div>
+
+  <div class="ex-human">
+    <div class="ex-human-role">👤 PM</div>
+    "Agrega un campo <code>featuredOrder</code> en Recipe — un número entero opcional para que editorial pueda pinear recetas destacadas arriba en cada categoría."
+  </div>
+
+  <div class="ex-output-row">
+    <span class="ex-output-label">Salida de Inception →</span>
+    Intent Doc firmado · 5 User Stories con criterios · 4 UoWs ordenados · Schema de Contentful aprobado · Equipo listo para arrancar UoW-01 mañana
+  </div>
+
+  <div class="phase-connector">↓</div>
+
+  <!-- ══ CONSTRUCTION UoW-01 ══ -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-bar" style="background:var(--ph-2)"></div>
+      <div>
+        <div class="phase-label" style="color:var(--ph-2)">Fase 2 · Construction</div>
+        <div class="phase-title">Bolt 1 — UoW-01: Feed de Recetas + Detalle <span class="bolt-tag">⚡ Bolt</span></div>
+      </div>
+    </div>
+    <div class="phase-desc">Día 2, 9am. Mob Construction en pantalla compartida. El CTO le pasa UoW-01 al agente. El contador arranca.</div>
+  </div>
+
+  <!-- cycle indicator: TASK active -->
+  <div class="cycle-strip">
+    <span class="cs-step active-step">Task</span><span class="cs-arrow">→</span>
+    <span class="cs-step ai-step">Plan</span><span class="cs-arrow">→</span>
+    <span class="cs-step hu-step">Clarify</span><span class="cs-arrow">→</span>
+    <span class="cs-step ai-step">Refine</span><span class="cs-arrow">→</span>
+    <span class="cs-step hu-step">Approve ✓</span><span class="cs-arrow">→</span>
+    <span class="cs-step ai-step">Execute</span><span class="cs-arrow">→</span>
+    <span class="cs-step hu-step">Verify ✓</span>
+  </div>
+
+  <div class="ex-step">
+    <div class="ex-step-header">
+      <span class="ex-step-badge ai">01 · TASK</span>
+      <span class="ex-step-title">IA lee UoW-01 y descompone en tareas técnicas</span>
+    </div>
+    <div class="ex-step-body">
+      <div style="font-size:13px; color:var(--muted); margin-bottom:12px;"><strong style="color:var(--text)">Input:</strong> El CTO pega UoW-01 + el schema de Contentful aprobado + el package.json del proyecto (React Native 0.73, Expo, TypeScript).</div>
+      <div class="ex-artifact">
+        <div class="ex-artifact-head">🤖 IA genera — Task breakdown</div>
+        <div class="ex-artifact-body">
+          <pre>TASK BREAKDOWN — UoW-01: Feed + Detalle de Recetas
+
+T1: Definir tipos TypeScript para Recipe y Category
+    → contrato de datos que usan todas las pantallas
+
+T2: Capa de datos — Contentful service
+    → cliente HTTP · queries GraphQL · caché local
+
+T3: Functional Design — navegación, estados de pantalla
+    → HomeScreen (feed por categorías) → RecipeDetailScreen
+
+T4: NFR Design — performance de imágenes, caché offline
+    → React Query para caché · FlashList para scroll
+
+T5: Code — pantallas y componentes
+    → RecipeCard · CategoryRow · HomeScreen · RecipeDetailScreen
+
+T6: Tests — unitarios de servicios + snapshots de componentes</pre>
+        </div>
+      </div>
+    </div>
+    <div class="ex-output-row">
+      <span class="ex-output-label">Output →</span>
+      6 tareas ordenadas con dependencias · T1 es prerrequisito de todo lo demás
+    </div>
+  </div>
+
+  <!-- PLAN active -->
+  <div class="cycle-strip">
+    <span class="cs-step ai-step">Task</span><span class="cs-arrow">→</span>
+    <span class="cs-step active-step">Plan</span><span class="cs-arrow">→</span>
+    <span class="cs-step hu-step">Clarify</span><span class="cs-arrow">→</span>
+    <span class="cs-step ai-step">Refine</span><span class="cs-arrow">→</span>
+    <span class="cs-step hu-step">Approve ✓</span><span class="cs-arrow">→</span>
+    <span class="cs-step ai-step">Execute</span><span class="cs-arrow">→</span>
+    <span class="cs-step hu-step">Verify ✓</span>
+  </div>
+
+  <div class="ex-step">
+    <div class="ex-step-header">
+      <span class="ex-step-badge ai">02 · PLAN</span>
+      <span class="ex-step-title">IA genera plan en 4 capas — el equipo lo ve formarse en vivo</span>
+    </div>
+    <div class="ex-step-body">
+      <div class="ex-artifact">
+        <div class="ex-artifact-head">🤖 Capa 1 — Functional Design</div>
+        <div class="ex-artifact-body">
+          <strong>Flujo del Home:</strong> al abrir la app, se cargan las categorías disponibles → por cada categoría se carga la primera página de recetas (8 items) → la pantalla renderiza secciones horizontales scrolleables.<br><br>
+          <strong>Flujo del Detalle:</strong> tap en una RecipeCard → RecipeDetailScreen → carga completa de la receta por slug → muestra imagen hero, info, ingredientes, pasos.<br><br>
+          <strong>Estados de pantalla:</strong> Loading skeleton · Contenido · Error con retry · Vacío (categoría sin recetas).<br><br>
+          <strong>Featured order:</strong> las recetas con <code>featuredOrder</code> aparecen primero en su categoría, ordenadas ascendente.
+        </div>
+      </div>
+      <div class="ex-artifact">
+        <div class="ex-artifact-head">🤖 Capa 2 — NFR Design</div>
+        <div class="ex-artifact-body">
+          <strong>Performance de imágenes:</strong> <code>expo-image</code> con caché automático en disco. Las fotos del feed se cargan en resolución reducida (400px); al abrir el detalle se carga la imagen full.<br><br>
+          <strong>Scroll:</strong> <code>FlashList</code> en lugar de FlatList — 5–10× mejor rendimiento en listas largas.<br><br>
+          <strong>Caché de datos:</strong> React Query con staleTime de 5 minutos. Si la receta está en caché y la red falla, se sirve del caché (offline básico).<br><br>
+          <strong>Cold start:</strong> las categorías se precargan en background al iniciar la app para que el feed aparezca inmediatamente.
+        </div>
+      </div>
+      <div class="ex-artifact">
+        <div class="ex-artifact-head">🤖 Capa 3 — Infrastructure + ADR</div>
+        <div class="ex-artifact-body">
+          <strong>Stack:</strong> React Native + Expo SDK 50 · TypeScript · React Query (datos) · Expo Router (navegación) · FlashList (listas) · expo-image (imágenes)<br><br>
+          <strong>Fuente de datos:</strong> Contentful Content Delivery API (GraphQL). El API key de Contentful vive en variables de entorno Expo — nunca en el código.<br><br>
+          <strong>ADR-001: React Query vs Zustand para estado de servidor</strong><br>
+          <em>Decisión:</em> React Query. <em>Razones:</em> manejo automático de loading/error/cache/retry, invalidation sencilla para pull-to-refresh, compatible con el patrón offline de v1. Zustand se reserva para estado local de UI (e.g. categoría activa).
+        </div>
+      </div>
+      <div class="ex-artifact">
+        <div class="ex-artifact-head">🤖 Capa 4 — Code Plan</div>
+        <div class="ex-artifact-body">
+          <pre>src/
+  types/
+    recipe.ts          ← Recipe, Category, RecipeCard types
+  services/
+    contentful.ts      ← GraphQL client + queries
+    recipeService.ts   ← getCategories(), getRecipesByCategory(), getRecipeBySlug()
+  hooks/
+    useRecipeFeed.ts   ← React Query hooks para el feed
+    useRecipeDetail.ts ← React Query hook para el detalle
+  components/
+    RecipeCard.tsx     ← card del feed (foto + nombre + tiempo + dificultad)
+    CategoryRow.tsx    ← sección horizontal de una categoría
+    SkeletonCard.tsx   ← loading state
+  screens/
+    HomeScreen.tsx     ← feed principal con CategoryRows
+    RecipeDetailScreen.tsx ← pantalla de detalle completa
+  __tests__/
+    recipeService.test.ts  ← mock de Contentful
+    RecipeCard.test.tsx    ← snapshot + render test</pre>
+        </div>
+      </div>
+    </div>
+    <div class="ex-output-row">
+      <span class="ex-output-label">Output →</span>
+      Plan de 4 capas · ADR-001 redactado · Estructura de archivos definida · 3 ambigüedades detectadas para Clarify
+    </div>
+  </div>
+
+  <!-- CLARIFY active -->
+  <div class="cycle-strip">
+    <span class="cs-step ai-step">Task</span><span class="cs-arrow">→</span>
+    <span class="cs-step ai-step">Plan</span><span class="cs-arrow">→</span>
+    <span class="cs-step active-step hu">Clarify</span><span class="cs-arrow">→</span>
+    <span class="cs-step ai-step">Refine</span><span class="cs-arrow">→</span>
+    <span class="cs-step hu-step">Approve ✓</span><span class="cs-arrow">→</span>
+    <span class="cs-step ai-step">Execute</span><span class="cs-arrow">→</span>
+    <span class="cs-step hu-step">Verify ✓</span>
+  </div>
+
+  <div class="ex-step">
+    <div class="ex-step-header">
+      <span class="ex-step-badge hu">03 · CLARIFY</span>
+      <span class="ex-step-title">IA pregunta — cada persona del equipo responde lo que le corresponde</span>
+    </div>
+    <div class="ex-step-body">
+      <div class="ex-dialog">
+        <div class="ex-dialog-row">
+          <div class="ex-dialog-who ai">IA</div>
+          <div class="ex-dialog-text"><strong>P1 (para la PM):</strong> El home muestra todas las categorías siempre, o el usuario puede filtrar/cambiar cuáles ve. Y en el home: ¿el orden de las categorías es fijo (editorial) o personalizado por usuario?</div>
+        </div>
+        <div class="ex-dialog-row">
+          <div class="ex-dialog-who hu">PM</div>
+          <div class="ex-dialog-text">Fijo por editorial — el mismo orden para todos los usuarios en v1. Sin filtros de categorías en el home (eso es v2). El usuario entra a una categoría tocando "Ver todo" y ahí sí ve solo esa categoría en scroll vertical.</div>
+        </div>
+        <div class="ex-dialog-row">
+          <div class="ex-dialog-who ai">IA</div>
+          <div class="ex-dialog-text"><strong>P2 (para el CTO):</strong> ¿La carga de recetas por categoría es paginada (8 por request) o queremos cargar todo el catálogo de una vez al inicio? El catálogo puede crecer a cientos de recetas — esto afecta la estrategia de caché y el tiempo de carga inicial.</div>
+        </div>
+        <div class="ex-dialog-row">
+          <div class="ex-dialog-who hu">CTO</div>
+          <div class="ex-dialog-text">Paginado. 8 cards en el home por categoría, y cuando el usuario entra a una categoría se carga por páginas de 12. Estamos en Contentful free tier ahora — tenemos límite de requests por mes, así que no queremos cargar todo de golpe.</div>
+        </div>
+        <div class="ex-dialog-row">
+          <div class="ex-dialog-who ai">IA</div>
+          <div class="ex-dialog-text"><strong>P3 (para QA):</strong> ¿Las imágenes de receta tienen un fallback si Contentful tarda o falla? ¿Hay una imagen placeholder estándar o simplemente mostramos el skeleton indefinidamente?</div>
+        </div>
+        <div class="ex-dialog-row">
+          <div class="ex-dialog-who hu">QA</div>
+          <div class="ex-dialog-text">Necesitamos un placeholder — un ícono genérico de tenedor y plato, en el color de la categoría. No debemos dejar el skeleton más de 8 segundos — si no cargó en ese tiempo, mostramos el placeholder con un ícono de "sin conexión".</div>
+        </div>
+      </div>
+    </div>
+    <div class="ex-output-row">
+      <span class="ex-output-label">Decisiones →</span>
+      Orden de categorías editorial · Paginación 8 home / 12 categoría · Timeout 8s + placeholder por categoría
+    </div>
+  </div>
+
+  <!-- REFINE active -->
+  <div class="cycle-strip">
+    <span class="cs-step ai-step">Task</span><span class="cs-arrow">→</span>
+    <span class="cs-step ai-step">Plan</span><span class="cs-arrow">→</span>
+    <span class="cs-step hu-step">Clarify</span><span class="cs-arrow">→</span>
+    <span class="cs-step active-step">Refine</span><span class="cs-arrow">→</span>
+    <span class="cs-step hu-step">Approve ✓</span><span class="cs-arrow">→</span>
+    <span class="cs-step ai-step">Execute</span><span class="cs-arrow">→</span>
+    <span class="cs-step hu-step">Verify ✓</span>
+  </div>
+
+  <div class="ex-step">
+    <div class="ex-step-header">
+      <span class="ex-step-badge ai">04 · REFINE</span>
+      <span class="ex-step-title">IA actualiza el plan con las 3 respuestas</span>
+    </div>
+    <div class="ex-step-body">
+      <div class="ex-artifact">
+        <div class="ex-artifact-head">🤖 Cambios al plan tras Clarify</div>
+        <div class="ex-artifact-body">
+          <strong>① Navegación actualizada:</strong> se agrega <code>CategoryScreen.tsx</code> — pantalla de lista vertical al tocar "Ver todo". La navegación es <code>HomeScreen → CategoryScreen → RecipeDetailScreen</code>. El plan de código se actualiza con este archivo adicional.<br><br>
+          <strong>② Estrategia de paginación:</strong> el hook <code>useRecipeFeed</code> se cambia a <code>useInfiniteQuery</code> de React Query. La función <code>getRecipesByCategory()</code> acepta <code>skip</code> y <code>limit</code> como parámetros. El home pide 8 items (sin paginación); CategoryScreen usa cursor de 12 en 12 con load-more al llegar al final de la lista.<br><br>
+          <strong>③ Manejo de imagen con fallback:</strong> el componente <code>RecipeCard</code> incorpora: <code>expo-image</code> con <code>contentFit="cover"</code>, timeout de 8 segundos, y <code>placeholder</code> que renderiza el ícono de la categoría en su color de fondo. Se agrega <code>categoryColors.ts</code> con los colores por categoría.
+        </div>
+      </div>
+      <div class="ex-human">
+        <div class="ex-human-role">👤 CTO — revisa el plan refinado</div>
+        "La paginación con <code>useInfiniteQuery</code> es exactamente lo correcto. Y el <code>CategoryScreen</code> como pantalla separada simplifica el HomeScreen — bien. Alguien más tiene algún punto antes de dar el go?"
+      </div>
+      <div class="ex-human">
+        <div class="ex-human-role">👤 QA</div>
+        "Me queda claro cómo voy a testear los placeholders. Lista para el Approve."
+      </div>
+    </div>
+    <div class="ex-output-row">
+      <span class="ex-output-label">Output →</span>
+      Plan actualizado · CategoryScreen agregada · useInfiniteQuery · Sistema de placeholders por categoría · Equipo alineado
+    </div>
+  </div>
+
+  <!-- APPROVE active -->
+  <div class="cycle-strip">
+    <span class="cs-step ai-step">Task</span><span class="cs-arrow">→</span>
+    <span class="cs-step ai-step">Plan</span><span class="cs-arrow">→</span>
+    <span class="cs-step hu-step">Clarify</span><span class="cs-arrow">→</span>
+    <span class="cs-step ai-step">Refine</span><span class="cs-arrow">→</span>
+    <span class="cs-step active-step hu">Approve ✓</span><span class="cs-arrow">→</span>
+    <span class="cs-step ai-step">Execute</span><span class="cs-arrow">→</span>
+    <span class="cs-step hu-step">Verify ✓</span>
+  </div>
+
+  <div class="ex-step" style="border-color: var(--hu-mid);">
+    <div class="ex-step-header" style="background: var(--hu-soft);">
+      <span class="ex-step-badge hu">05 · APPROVE ✓</span>
+      <span class="ex-step-title">El CTO da el go — primer momento en que existe código</span>
+    </div>
+    <div class="ex-step-body">
+      <div class="ex-decision">
+        <div class="ex-decision-label">👤 CTO — Decisor autorizado</div>
+        "Plan aprobado. Nota importante: el API key de Contentful no debe aparecer en ningún console.log ni en código de tests — quiero que eso quede en las instrucciones explícitas al agente. Continúa con ejecución."
+      </div>
+      <div class="ex-artifact">
+        <div class="ex-artifact-head">🤖 IA confirma restricción y arranca Execute</div>
+        <div class="ex-artifact-body">Registrado: el API key de Contentful se lee únicamente de <code>process.env.CONTENTFUL_SPACE_ID</code> y <code>process.env.CONTENTFUL_ACCESS_TOKEN</code>. En tests se usa un cliente mock — nunca las credenciales reales. Iniciando generación en orden de dependencias: <code>types</code> → <code>services</code> → <code>hooks</code> → <code>components</code> → <code>screens</code> → <code>tests</code>.</div>
+      </div>
+    </div>
+    <div class="ex-output-row" style="background: var(--hu-soft); border-top-color: var(--hu-mid);">
+      <span class="ex-output-label" style="color:var(--hu)">Gate → </span>
+      <span style="color:var(--hu)">Aprobación explícita con restricción de seguridad registrada. El código no existía hasta este momento.</span>
+    </div>
+  </div>
+
+  <!-- EXECUTE active -->
+  <div class="cycle-strip">
+    <span class="cs-step ai-step">Task</span><span class="cs-arrow">→</span>
+    <span class="cs-step ai-step">Plan</span><span class="cs-arrow">→</span>
+    <span class="cs-step hu-step">Clarify</span><span class="cs-arrow">→</span>
+    <span class="cs-step ai-step">Refine</span><span class="cs-arrow">→</span>
+    <span class="cs-step hu-step">Approve ✓</span><span class="cs-arrow">→</span>
+    <span class="cs-step active-step">Execute</span><span class="cs-arrow">→</span>
+    <span class="cs-step hu-step">Verify ✓</span>
+  </div>
+
+  <div class="ex-step">
+    <div class="ex-step-header">
+      <span class="ex-step-badge ai">06 · EXECUTE</span>
+      <span class="ex-step-title">IA genera 10 archivos — el equipo monitorea en pantalla compartida</span>
+    </div>
+    <div class="ex-step-body">
+      <div class="ex-artifact">
+        <div class="ex-artifact-head">🤖 IA genera código — extracto: RecipeCard.tsx (trazable a US-01)</div>
+        <div class="ex-artifact-body">
+          <pre>// RecipeCard.tsx
+// Trazabilidad: US-01 · criterio: "muestra foto, nombre, tiempo, dificultad"
+
+import { Image } from 'expo-image'
+import { CATEGORY_COLORS, CATEGORY_PLACEHOLDERS } from '../config/categoryColors'
+
+interface RecipeCardProps {
+  recipe: RecipeCardData
+  onPress: () =&gt; void
+}
+
+export function RecipeCard({ recipe, onPress }: RecipeCardProps) {
+  const placeholderBg = CATEGORY_COLORS[recipe.category.slug] ?? '#E5E7EB'
+
+  return (
+    &lt;Pressable style={styles.card} onPress={onPress}&gt;
+      &lt;Image
+        source={recipe.coverImage.url}
+        style={styles.image}
+        contentFit="cover"
+        transition={200}
+        // QA criterio: placeholder por categoría si imagen no carga en 8s
+        cachePolicy="memory-disk"
+        placeholder={{ uri: CATEGORY_PLACEHOLDERS[recipe.category.slug] }}
+        onLoadStart={() =&gt; startTimer(8000, () =&gt; setShowOffline(true))}
+      /&gt;
+      &lt;View style={styles.info}&gt;
+        &lt;Text style={styles.title} numberOfLines={2}&gt;{recipe.title}&lt;/Text&gt;
+        &lt;View style={styles.meta}&gt;
+          &lt;Text style={styles.time}&gt;⏱ {recipe.prepTime} min&lt;/Text&gt;
+          &lt;DifficultyBadge level={recipe.difficulty} /&gt;
+        &lt;/View&gt;
+      &lt;/View&gt;
+    &lt;/Pressable&gt;
+  )
+}</pre>
+        </div>
+      </div>
+      <div style="font-size:13px; color:var(--muted); margin: 12px 0 4px;"><strong style="color:var(--text)">Intervención humana durante ejecución:</strong></div>
+      <div class="ex-human">
+        <div class="ex-human-role">👤 CTO — Execution Intervention</div>
+        "En <code>recipeService.ts</code> estás usando <code>fetch</code> directamente para las queries de GraphQL. Necesito que uses <code>graphql-request</code> — ya está en nuestras dependencias y lo usamos en otros proyectos del equipo. La consistencia importa."
+      </div>
+      <div class="ex-artifact">
+        <div class="ex-artifact-head">🤖 IA pausa y propone ajuste antes de continuar</div>
+        <div class="ex-artifact-body">Entendido. Reemplazo <code>fetch</code> con el cliente de <code>graphql-request</code>. El cambio afecta solo a <code>contentful.ts</code> — el resto de los archivos ya generados no cambia porque consumen el servicio, no el cliente. ¿Continúo con este ajuste?</div>
+      </div>
+      <div class="ex-decision">
+        <div class="ex-decision-label">👤 CTO</div>
+        "Sí, continúa."
+      </div>
+    </div>
+    <div class="ex-output-row">
+      <span class="ex-output-label">Output →</span>
+      10 archivos TypeScript/TSX · Ajuste de graphql-request aplicado · Tests unitarios con mocks · Cada componente trazable a una User Story
+    </div>
+  </div>
+
+  <!-- VERIFY active -->
+  <div class="cycle-strip">
+    <span class="cs-step ai-step">Task</span><span class="cs-arrow">→</span>
+    <span class="cs-step ai-step">Plan</span><span class="cs-arrow">→</span>
+    <span class="cs-step hu-step">Clarify</span><span class="cs-arrow">→</span>
+    <span class="cs-step ai-step">Refine</span><span class="cs-arrow">→</span>
+    <span class="cs-step hu-step">Approve ✓</span><span class="cs-arrow">→</span>
+    <span class="cs-step ai-step">Execute</span><span class="cs-arrow">→</span>
+    <span class="cs-step active-step hu">Verify ✓</span>
+  </div>
+
+  <div class="ex-step">
+    <div class="ex-step-header">
+      <span class="ex-step-badge hu">07 · VERIFY ✓</span>
+      <span class="ex-step-title">IA corre tests — el equipo decide si UoW-01 está completo</span>
+    </div>
+    <div class="ex-step-body">
+      <div class="ex-artifact">
+        <div class="ex-artifact-head">🤖 IA genera — Summary Report de UoW-01</div>
+        <div class="ex-artifact-body">
+          <strong>Test results:</strong> 38/40 pasando<br>
+          <strong>2 fallos:</strong> tests de snapshot de <code>RecipeDetailScreen</code> — la fuente "Playfair Display" no está disponible en el entorno de tests de Jest (solo en el simulador)<br>
+          <strong>Cobertura:</strong> 91% — servicios y hooks al 100%, componentes al 87%<br><br>
+          <strong>Trade-offs tomados:</strong><br>
+          — Se usa <code>useInfiniteQuery</code> con cursor en lugar de offset-based pagination: más complejo pero evita duplicados si el CMS actualiza el orden entre requests<br>
+          — El placeholder de imagen con timeout de 8s usa un timer manual en lugar de la prop nativa de expo-image (que no tiene timeout configurable en esta versión)<br>
+          — El caché de React Query expira en 5 minutos: decisión conservadora que puede causar refetch frecuente en uso intensivo; ajustable sin cambio de arquitectura<br><br>
+          <strong>Recomendación IA:</strong> Los 2 fallos son del entorno de tests, no del código. Recomiendo marcar UoW-01 como completo y resolver el tema de fuentes en la configuración de Jest como deuda técnica menor (1 hora de trabajo).
+        </div>
+      </div>
+      <div class="ex-human">
+        <div class="ex-human-role">👤 QA — análisis en Mob Testing</div>
+        "Confirmo los 2 fallos. Lo probé en simulador iOS y Android — las pantallas renderizan correctamente con la fuente real. No es un bug de producto. Apruebo."
+      </div>
+      <div class="ex-decision">
+        <div class="ex-decision-label">👤 CTO — decisión final del Bolt</div>
+        "UoW-01 COMPLETO. Mañana arrancamos UoW-02 (Paywall) y el diseñador empieza los wireframes de UoW-03 (Guardados) en paralelo. La deuda de la fuente en Jest va al backlog técnico."
+      </div>
+    </div>
+    <div class="ex-output-row">
+      <span class="ex-output-label">Output →</span>
+      Summary Report · 91% cobertura · Feed + Detalle funcionando en iOS y Android · ADR-001 cerrado · Go para UoW-02
+    </div>
+  </div>
+
+  <div class="phase-connector">↓</div>
+
+  <!-- ══ OPERATIONS ══ -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-bar" style="background:var(--ph-3)"></div>
+      <div>
+        <div class="phase-label" style="color:var(--ph-3)">Fase 3 · Operations</div>
+        <div class="phase-title">App en producción — los 3 días después del lanzamiento</div>
+      </div>
+    </div>
+    <div class="phase-desc">Tras completar los 4 UoWs, la app pasa por TestFlight y Play Console beta. El equipo aprueba y se lanza. Lo que pasa después.</div>
+  </div>
+
+  <div class="ex-ops-grid">
+
+    <div class="ex-ops-card">
+      <div class="ex-ops-head">
+        <div class="ex-ops-head-title">Deployment</div>
+        <div class="ex-ops-head-sub">TestFlight + Play Console beta</div>
+      </div>
+      <div class="ex-ops-body">
+        <div class="ex-ops-entry">
+          <div class="ex-ops-who ai">IA</div>
+          <div class="ex-ops-txt">"Propongo lanzar primero a un grupo cerrado de 50 usuarios beta via TestFlight (iOS) y Google Play Internal Testing (Android). Criterio de avance a producción: tasa de crashes &lt; 0.5% en 48 horas."</div>
+        </div>
+        <div class="ex-ops-entry">
+          <div class="ex-ops-who hu">CTO</div>
+          <div class="ex-ops-txt"><strong>Aprueba el plan beta.</strong> "Agrega: si cualquier miembro del equipo editorial reporta que una receta no carga en 48h de beta, blockeamos el lanzamiento público."</div>
+        </div>
+        <div class="ex-ops-entry">
+          <div class="ex-ops-who ai">IA</div>
+          <div class="ex-ops-txt">Incorpora el criterio editorial. Sube builds a ambas plataformas. Beta de 48h: 0 crashes críticos, 1 bug menor de UI reportado por editorial (receta con título muy largo truncado). Fix aplicado, nueva build subida. Lanzamiento público aprobado.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-ops-card">
+      <div class="ex-ops-head">
+        <div class="ex-ops-head-title">Observabilidad</div>
+        <div class="ex-ops-head-sub">Mixpanel + Crashlytics</div>
+      </div>
+      <div class="ex-ops-body">
+        <div class="ex-ops-entry">
+          <div class="ex-ops-who ai">IA</div>
+          <div class="ex-ops-txt">"Propongo Crashlytics para crashes (gratis, Firebase) y Mixpanel para comportamiento de usuario. Eventos clave a trackear: <code>recipe_opened</code>, <code>paywall_shown</code>, <code>subscription_started</code>, <code>recipe_saved</code>, <code>search_performed</code>."</div>
+        </div>
+        <div class="ex-ops-entry">
+          <div class="ex-ops-who hu">PM</div>
+          <div class="ex-ops-txt"><strong>Aprueba.</strong> "Agrega <code>category_viewed</code> con la categoría como propiedad — quiero saber cuál es la más popular para priorizar contenido editorial."</div>
+        </div>
+        <div class="ex-ops-entry">
+          <div class="ex-ops-who ai">IA</div>
+          <div class="ex-ops-txt">Implementa ambos SDKs. Los eventos quedan trackeados desde el día del lanzamiento público.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-ops-card">
+      <div class="ex-ops-head">
+        <div class="ex-ops-head-title">Incident Response</div>
+        <div class="ex-ops-head-sub">Día 3 post-lanzamiento</div>
+      </div>
+      <div class="ex-ops-body">
+        <div class="incident-alert">
+          <div class="incident-label">🔴 Crashlytics Alert</div>
+          Crash rate: 4.2% en iOS 16<br>
+          Crash en <code>RecipeDetailScreen</code><br>
+          <small>62 reportes en 3 horas</small>
+        </div>
+        <div class="ex-ops-entry">
+          <div class="ex-ops-who ai">IA</div>
+          <div class="ex-ops-txt"><strong>Análisis:</strong> "Stack trace apunta a <code>expo-image</code> v1.12.0 en iOS 16 específicamente. La versión tiene un bug conocido con imágenes en formato HEIC desde Contentful cuando el dispositivo está en modo Low Power. El bug está reportado en el repositorio de expo-image — el fix está en v1.12.1, lanzada hace 2 días."</div>
+        </div>
+        <div class="ex-ops-entry">
+          <div class="ex-ops-who ai">IA</div>
+          <div class="ex-ops-txt"><strong>Recomendación:</strong> "Actualizar <code>expo-image</code> a v1.12.1 y subir un hotfix a TestFlight. El fix tarda ~20 min de build. Alternativamente, pedir a Contentful que convierta imágenes HEIC a JPEG (solución en CMS, tarda más). Recomiendo la actualización del paquete."</div>
+        </div>
+        <div class="ex-ops-entry">
+          <div class="ex-ops-who hu">CTO</div>
+          <div class="ex-ops-txt"><strong>Aprueba el hotfix.</strong> "Actualiza expo-image y sube build expedita a App Store con el flag de 'bug fix urgente'."</div>
+        </div>
+        <div class="ex-ops-entry">
+          <div class="ex-ops-who ai">IA</div>
+          <div class="ex-ops-txt">Actualiza dependencia, genera nueva build, sube a TestFlight. QA valida en 15 min. Build enviada a App Store Review con prioridad. Crash resuelto. <strong>Tiempo total: 1h 10min.</strong></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="note" style="margin-top: 24px; background: var(--ai-soft); border-color: var(--ai-mid);">
+    <div class="note-icon" style="color:var(--ai)">✓</div>
+    <div style="font-size:13px;">
+      <strong style="color:var(--ai)">End-to-end completado.</strong> Desde "queremos una app de recetas" hasta un crash de producción resuelto en 1 hora — siempre el mismo principio: <em>IA propone · humano decide · IA ejecuta</em>. En ningún momento la IA eligió el modelo de negocio, aprobó un plan, tomó una decisión de arquitectura o marcó un UoW como terminado. Todo eso fue humano.
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+</div><!-- /tab-example -->
+
+
+<button class="theme-btn" onclick="toggleTheme()">☀ / ☾ tema</button>
+
+<script>
+let dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+function toggleTheme() {
+  dark = !dark;
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+}
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
